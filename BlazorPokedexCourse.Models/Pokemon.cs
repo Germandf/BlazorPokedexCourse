@@ -11,6 +11,6 @@ namespace BlazorPokedexCourse.Models
         public List<Type> Types { get; set; } = null!;
 
         [JsonProperty("sprites")]
-        public List<Sprite> Sprites { get; set; } = null!;
+        public Sprite Sprite { get; set; } = null!;
     }
 }
