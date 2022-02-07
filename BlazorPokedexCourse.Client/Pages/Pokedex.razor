@@ -1,41 +1,47 @@
 ﻿@page "/"
+
 @using BlazorPokedexCourse.Models
 @using BlazorPokedexCourse.Services
 @inject IPokeApiClient _pokeApiClient
-<h3>Pokedex</h3>
 
-@if(_pokemons is null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <div>
-        @for (int i = 0; i < NumberOfRows; i++)
-        {
-            <div class="d-flex">
-                @foreach (var pokemon in _pokemons.Skip(i * 6).Take(6))
-                {
-                    <div class="card pokeCard mb-4 bg-@(pokemon.Types.FirstOrDefault()!.PokemonType.Name)">
-                        <div class="card-body">
-                            <h4 class="card-title">@pokemon.Name</h4>
-                            <img src="@pokemon.Sprite.Front" class="img-fluid" alt="@pokemon.Name" />
-                        </div>
-                    </div>
-                }
-            </div>
-        }
+<h3 class="text-center">Pokedex</h3>
+
+<div>
+    <div class="row">
+        <div class="col">
+            <Pagination MetaData="_paginationMetaData" Spread="3" SelectedPage="SelectedPage" />
+        </div>
     </div>
-}
+
+    <PokemonGrid Pokemons="_pokemons" NumberOfRows="4" />
+</div>
 
 @code {
 
-    private IEnumerable<Pokemon> _pokemons;
-    public int NumberOfRows { get; set; } = 5;
+    private IEnumerable<Pokemon>? _pokemons;
+    private PaginationMetaData _paginationMetaData = new();
+    private PaginationParameters _paginationParameters = new();
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync() =>
+        await GetPokemons();
+
+    private async Task SelectedPage(int page)
     {
-        _pokemons = await _pokeApiClient.GetAllPokemons();
+        _paginationParameters.PageNumber = page;
+        await GetPokemons();
     }
+
+    private async Task GetPokemons()
+    {
+        var pokemons = new List<Pokemon>();
+        var result = await _pokeApiClient.GetAllPokemons(_paginationParameters);
+        foreach (var pokemon in result.Pokemons)
+            pokemons.Add(await _pokeApiClient.GetPokemon(pokemon.Name));
+        _pokemons = pokemons;
+        _paginationMetaData.TotalCount = result.Count;
+        _paginationMetaData.TotalPages = _paginationMetaData.TotalCount / _paginationParameters.PageSize;
+        StateHasChanged();
+    }
+    
 
 }
