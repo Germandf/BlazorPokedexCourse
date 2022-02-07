@@ -12,5 +12,17 @@ namespace BlazorPokedexCourse.Models
 
         [JsonProperty("sprites")]
         public Sprite Sprite { get; set; } = null!;
+        
+        [JsonProperty("id")]
+        public int Id { get; set; }
+        
+        [JsonProperty("base_experience")]
+        public int BaseExperience { get; set; }
+        
+        [JsonProperty("weight")]
+        public int Weight { get; set; }
+        
+        [JsonProperty("height")]
+        public int Height { get; set; }
     }
 }

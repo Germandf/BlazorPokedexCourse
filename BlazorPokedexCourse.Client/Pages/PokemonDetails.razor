@@ -1,0 +1,62 @@
+﻿@page "/details/{name}"
+
+@using Models
+@using Services
+@inject IPokeApiClient _pokeApiClient
+
+<h3 class="text-center">PokemonDetails</h3>
+
+@if(_pokemon is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row row-align">
+        <div class="col-sm-6">
+            <div class="mt-2">
+                <h1>@_pokemon.Name.Substring(0, 1).ToUpper()@_pokemon.Name.Substring(1, _pokemon.Name.Length - 1)</h1>
+                @foreach (var type in _pokemon.Types)
+                {
+                    <span class="badge border rounded-pill bg-@type.PokemonType.Name" style="font-size: medium; text-align: center;">
+                        @type.PokemonType.Name
+                    </span>
+                }
+            </div>
+
+            <ul class="list-group list-group-flush mt-4 mx-auto" style="width:20rem;">
+                <li class="list-group-item bg-transparent">
+                    ID #<b class="float-end">@_pokemon.Id</b>
+                </li>
+                <li class="list-group-item bg-transparent">
+                    Experience <b class="float-end">@_pokemon.BaseExperience</b>
+                </li>
+                <li class="list-group-item bg-transparent">
+                    Weight <b class="float-end">@_pokemon.Weight</b>
+                </li>
+                <li class="list-group-item bg-transparent">
+                    Height <b class="float-end">@_pokemon.Height</b>
+                </li>
+            </ul>
+        </div>
+
+        <div class="col-sm-6">
+            <img src="https://img.pokemondb.net/artwork/large/@(_pokemon.Name).jpg" alt="@_pokemon.Name"
+                 class="img-fluiid d-block mx-auto" style="width: 600px;" />
+        </div>
+    </div>
+}
+
+@code {
+
+    [Parameter]
+    public string Name { get; set; } = null!;
+
+    private Pokemon _pokemon { get; set; } = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _pokemon = await _pokeApiClient.GetPokemon(Name);
+    }
+
+}
